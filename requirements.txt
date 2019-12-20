@@ -1,0 +1,6 @@
+#Mido==1.2.8
+#python-rtmidi==1.1.0
+#jsonpickle==0.9.5
+#pyaudio==0.2.11
+scipy==1.0.0
+#matplotlib==2.1.2
