@@ -6,7 +6,7 @@
 
 import os
 
-from dw8000_wav2bin import transform_wav_to_bytes
+from dw8000_wav2syx.dw8000_wav2bin import transform_wav_to_bytes
 
 for root, dirs, files in os.walk(r"g:\christof\music\dw8000\patches"):
     for file in files:
