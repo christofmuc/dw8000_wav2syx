@@ -1,4 +1,9 @@
 #
+#  Copyright (c) 2019 Christof Ruch. All rights reserved.
+#
+#  Dual licensed: Distributed under Affero GPL license by default, an MIT license is available for purchase
+#
+#
 # Historical scribbles by Christof, dated August 11 2018.
 #
 # Leading to the conclusion that the DW8000 does not store the sysex on tape, but rather its own internal data format
