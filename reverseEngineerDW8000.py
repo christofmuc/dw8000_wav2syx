@@ -29,44 +29,43 @@ def read_sysex(filename):
 # In a single bin file, we might have more than one instance of the patch data. This normally happens as
 # users will want to write the same data multiple times in order to have a backup, given how unsafe tape storage was
 # This function only loads the first instance (?)
-def read_acoustic_bytes(filename):
+def read_acoustic_bytes(bytefile):
     header_found = False
     intro_done = False
     count = 0
     success = True
-    with open(filename, "rb") as bytefile:
-        while bytefile.readable() and count < 64:
-            if not header_found:
-                data = bytefile.read(1)
-                if data[0] == 0xff:
-                    header_found = True
-            elif not intro_done:
-                data = bytefile.read(1)
-                if data[0] != 0xff:
-                    # This is the first byte of the intro
-                    if data[0] != 0x42:
-                        # print("Incorrect header - corrupt file?")
-                        header_found = False
-                        continue
-                    second = bytefile.read(1)
-                    if second[0] != 0x03:
-                        print("Are you sure this is a file for the Korg DW8000? Found Device ID", second[0])
-                        header_found = False
-                        continue
-                    intro_done = True
-            else:
-                patch = bytefile.read(30)
-                checksum = bytefile.read(1)
-                if len(checksum) == 0:
-                    print("Premature end of file!")
-                    success = False
-                elif (sum(patch) & 0xff) != checksum[0]:
-                    print("Checksum error got %x but expected %x" % (sum(patch) & 0xff, checksum[0]))
-                    success = False
-                acoustic_data.append(patch)
-                # print("Patch %d" % count, patch)
-                count += 1
-        return count == 64 and success
+    while bytefile.readable() and count < 64:
+        if not header_found:
+            data = bytefile.read(1)
+            if data[0] == 0xff:
+                header_found = True
+        elif not intro_done:
+            data = bytefile.read(1)
+            if data[0] != 0xff:
+                # This is the first byte of the intro
+                if data[0] != 0x42:
+                    # print("Incorrect header - corrupt file?")
+                    header_found = False
+                    continue
+                second = bytefile.read(1)
+                if second[0] != 0x03:
+                    print("Are you sure this is a file for the Korg DW8000? Found Device ID", second[0])
+                    header_found = False
+                    continue
+                intro_done = True
+        else:
+            patch = bytefile.read(30)
+            checksum = bytefile.read(1)
+            if len(checksum) == 0:
+                print("Premature end of file!")
+                success = False
+            elif (sum(patch) & 0xff) != checksum[0]:
+                print("Checksum error got %x but expected %x" % (sum(patch) & 0xff, checksum[0]))
+                success = False
+            acoustic_data.append(patch)
+            # print("Patch %d" % count, patch)
+            count += 1
+    return count == 64 and success
 
 
 # Hand code the one special case for parameter #32, which is split into two bytes on tape
@@ -227,6 +226,7 @@ def remap_tape_data_to_syx(tapefile, syxfile, ground_truth=None, verbose=False, 
     if verbose:
         print("Output after mapping", new_sysex)
     mido.write_syx_file(syxfile, new_sysex)
+    print(syxfile, "written")
 
 
 if __name__ == '__main__':

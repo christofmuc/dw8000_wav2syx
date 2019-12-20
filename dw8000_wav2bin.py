@@ -12,8 +12,6 @@ import scipy.io.wavfile as wf
 from scipy.signal import butter, lfilter
 from reverseEngineerDW8000 import read_acoustic_bytes
 
-verbose = True
-
 middle_length = 21
 too_long = 100
 
@@ -21,7 +19,8 @@ too_long = 100
 def butter_lowpass(cutoff, fs, order=5):
     nyq = 0.5 * fs
     normal_cutoff = cutoff / nyq
-    b, a = butter(order, normal_cutoff, btype='low', analog=False)
+    # noinspection PyTupleAssignmentBalance
+    b, a = butter(order, normal_cutoff, btype='low', analog=False, output='ba')
     return b, a
 
 
@@ -95,8 +94,7 @@ def schmitt_trigger(normaldata, high, low):
     return rect
 
 
-def transform_wav_to_bytes(wave_file_name, output_file_name):
-
+def transform_wav_to_bytes(wave_file_name, output_file, verbose=False):
     fs, data = load_wav(wave_file_name)
 
     if verbose:
@@ -111,9 +109,8 @@ def transform_wav_to_bytes(wave_file_name, output_file_name):
             data = newdata
             fs *= 2
 
-
     max_value = max(abs(numpy.min(data)), abs(numpy.max(data)))
-    average = numpy.average(data) # Gleichstromanteil
+    average = numpy.average(data)  # Gleichstromanteil
     if verbose:
         print("Min: ", numpy.min(data), ", and max ", numpy.max(data), "average is ", numpy.average(data))
     normaldata = (data - average) / max_value
@@ -133,8 +130,8 @@ def transform_wav_to_bytes(wave_file_name, output_file_name):
         filtered = butter_lowpass_filter(data=normaldata, cutoff=cutoff, fs=fs, order=order)
         if verbose:
             print("Filtered Min: ", numpy.min(filtered), ", and max ", numpy.max(filtered))
-        #max_value = max(abs(numpy.min(filtered)), abs(numpy.max(filtered)))
-        #filtered = filtered / max_value
+        # max_value = max(abs(numpy.min(filtered)), abs(numpy.max(filtered)))
+        # filtered = filtered / max_value
         normaldata = filtered
 
     if verbose:
@@ -165,7 +162,7 @@ def transform_wav_to_bytes(wave_file_name, output_file_name):
         print(signals, "Length", len(signals))
     histogram = {}
     for signal in signals:
-        if not signal in histogram:
+        if signal not in histogram:
             histogram[signal] = 0
         histogram[signal] += 1
 
@@ -218,17 +215,19 @@ def transform_wav_to_bytes(wave_file_name, output_file_name):
     if verbose:
         print(len(bytestream))
 
-    print("Writing file", output_file_name)
-    with open(output_file_name, "wb") as newFile:
-        newFile.write(bytearray(bytestream))
+    # Write to file given
+    output_file.write(bytearray(bytestream))
 
     # Check for checksum errors by reading the bytes
     if verbose:
         print("Reading result to check for checksum errors!")
-    if read_acoustic_bytes(output_file_name):
-        print("Successfully verified file", output_file_name)
+
+    # Rewind and reread file
+    output_file.seek(0)
+    if read_acoustic_bytes(output_file):
+        print("Successfully verified file")
     else:
-        print("File could not be read:", output_file_name)
+        print("File could not be verified!")
         print_histogram(histogram)
 
 
@@ -243,6 +242,5 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    verbose = args.verbose
-    transform_wav_to_bytes(args.wavefile, args.binfile)
-
+    with open(args.binfile, "w+b") as bin_file:
+        transform_wav_to_bytes(args.wavefile, bin_file, verbose=args.verbose)
