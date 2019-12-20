@@ -10,7 +10,7 @@ import struct
 import numpy
 import scipy.io.wavfile as wf
 from scipy.signal import butter, lfilter
-from reverseEngineerDW8000 import read_acoustic_bytes
+from dw8000_reverse_engineer import read_acoustic_bytes
 
 middle_length = 21
 too_long = 100

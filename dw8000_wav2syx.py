@@ -8,7 +8,7 @@ import argparse
 import tempfile
 
 from dw8000_wav2bin import transform_wav_to_bytes
-from reverseEngineerDW8000 import remap_tape_data_to_syx
+from dw8000_reverse_engineer import remap_tape_data_to_syx
 
 verbose = False
 

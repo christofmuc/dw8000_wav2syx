@@ -5,7 +5,7 @@
 #
 
 import argparse
-from reverseEngineerDW8000 import remap_tape_data_to_syx
+from dw8000_reverse_engineer import remap_tape_data_to_syx
 
 verbose = False
 
