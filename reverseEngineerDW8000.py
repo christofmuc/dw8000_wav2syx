@@ -174,7 +174,7 @@ def mask_for_bits(bits):
     return (1 << bits) - 1
 
 
-def remap_tape_data_to_syx(tapefile, syxfile, ground_truth=None, verbose=False):
+def remap_tape_data_to_syx(tapefile, syxfile, ground_truth=None, verbose=False, store=False):
     if ground_truth is not None:
         read_sysex(ground_truth)
         if verbose:
@@ -209,10 +209,19 @@ def remap_tape_data_to_syx(tapefile, syxfile, ground_truth=None, verbose=False):
                 print(new_data)
 
         # Create a DW8000 Data Save sysex message according to its service manual (p. 3)
-        data_dump = [0x42, 0x30, 0x03, 0x40 ]
+        data_dump = [0x42, 0x30, 0x03, 0x40]
         data_dump.extend(new_data)
-        data_dump_message = mido.Message('sysex', data = data_dump)
+        data_dump_message = mido.Message('sysex', data=data_dump)
         new_sysex.append(data_dump_message)
+
+        if store:
+            # If the store parameter is selected, create a write request that will store the edit buffer just
+            # created into a patch memory place
+            if 0 <= index < 64:
+                write_request = mido.Message('sysex', data=[0x42, 0x30, 0x03, 0x11, index])
+                new_sysex.append(write_request)
+            else:
+                print("Error: More than 64 patches, can't create write request any more")
         index += 1
 
     if verbose:

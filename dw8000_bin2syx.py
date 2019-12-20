@@ -14,9 +14,9 @@ if __name__ == '__main__':
     parser.add_argument('binfile')
     parser.add_argument('syxfile')
     parser.add_argument('--verbose', type=bool, default=False)
+    parser.add_argument('--store', type=bool, default=False)
 
     args = parser.parse_args()
 
-    verbose = args.verbose
-    remap_tape_data_to_syx(tapefile=args.binfile, syxfile= args.syxfile)
+    remap_tape_data_to_syx(tapefile=args.binfile, syxfile= args.syxfile, verbose=args.verbose, store=args.store)
 
