@@ -163,7 +163,7 @@ else:
                            {"audio": 23, "bits": 2, "sysex": 48, "shift": 0},
                            {"audio": 24, "bits": 2, "sysex": 49, "shift": 0},
                            {"audio": 25, "bits": 2, "sysex": 50, "shift": 0}]
-print("Mapping used", json.dumps(secret_mapping))
+#print("Mapping used", json.dumps(secret_mapping))
 
 
 def mask_for_bits(bits):
@@ -200,7 +200,9 @@ def remap_tape_data_to_syx(syxfile, tapefile):
 
     print("Output after mapping", new_sysex)
 
-# This is the data to reverse engineer the memory mapping
-remap_tape_data_to_syx(r"dw8000-reverse\reveng.syx", r"dw8000-reverse\reverse.bin")
 
-# Now walk the tree and find all pairs of tape data with sysex data!
+if __name__ == '__main__':
+    # This is the data to reverse engineer the memory mapping
+    remap_tape_data_to_syx(r"dw8000-reverse\reveng.syx", r"dw8000-reverse\reverse.bin")
+
+

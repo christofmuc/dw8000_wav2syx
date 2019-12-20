@@ -4,6 +4,7 @@
 #  Dual licensed: Distributed under Affero GPL license by default, an MIT license is available for purchase
 #
 
+import argparse
 import wave
 import struct
 import numpy
@@ -231,5 +232,17 @@ def transform_wav_to_bytes(wave_file_name, output_file_name):
         print_histogram(histogram)
 
 
-transform_wav_to_bytes(r"g:\christof\music\dw8000\patches\Clipped.wav", "tmp.bin")
+# If this is the main program, we only do a WAV to binary conversion, we do not create a syx file but rather stop
+# at the phase where we get the binary data, so we can see what is on the tape
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Convert a Korg DW8000 wave file to its binary representation in '
+                                                 '.bin format')
+    parser.add_argument('wavefile')
+    parser.add_argument('binfile')
+    parser.add_argument('--verbose', type=bool, default=False)
+
+    args = parser.parse_args()
+
+    verbose = args.verbose
+    transform_wav_to_bytes(args.wavefile, args.binfile)
 
