@@ -7,7 +7,6 @@
 import wave
 import struct
 import numpy
-import os
 import scipy.io.wavfile as wf
 from scipy.signal import butter, lfilter
 from reverseEngineerDW8000 import read_acoustic_bytes
@@ -233,10 +232,4 @@ def transform_wav_to_bytes(wave_file_name, output_file_name):
 
 
 transform_wav_to_bytes(r"g:\christof\music\dw8000\patches\Clipped.wav", "tmp.bin")
-exit()
 
-for root, dirs, files in os.walk(r"g:\christof\music\dw8000\patches"):
-    for file in files:
-        filename, file_extension = os.path.splitext(file)
-        if file_extension.lower() == ".wav":
-            transform_wav_to_bytes(os.path.join(root, file), os.path.join(root, filename + ".auto.bin"))
