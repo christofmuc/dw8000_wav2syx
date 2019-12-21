@@ -5,11 +5,10 @@
 #
 
 import argparse
-from dw8000_reverse_engineer import remap_tape_data_to_syx
+from dw8000_wav2syx.dw8000_reverse_engineer import remap_tape_data_to_syx
 
-verbose = False
 
-if __name__ == '__main__':
+def bin2syx():
     parser = argparse.ArgumentParser(description='Convert a Korg DW8000 bin file converted from tape into syx format')
     parser.add_argument('binfile')
     parser.add_argument('syxfile')
@@ -18,5 +17,8 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    remap_tape_data_to_syx(tapefile=args.binfile, syxfile= args.syxfile, verbose=args.verbose, store=args.store)
+    remap_tape_data_to_syx(tapefile=args.binfile, syxfile=args.syxfile, verbose=args.verbose, store=args.store)
 
+
+if __name__ == '__main__':
+    bin2syx()

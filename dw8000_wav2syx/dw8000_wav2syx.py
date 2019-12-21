@@ -7,12 +7,11 @@
 import argparse
 import tempfile
 
-from dw8000_wav2bin import transform_wav_to_bytes
-from dw8000_reverse_engineer import remap_tape_data_to_syx
+from dw8000_wav2syx.dw8000_wav2bin import transform_wav_to_bytes
+from dw8000_wav2syx.dw8000_reverse_engineer import remap_tape_data_to_syx
 
-verbose = False
 
-if __name__ == '__main__':
+def wav2syx():
     parser = argparse.ArgumentParser(description='Convert a Korg DW8000 tape wav into syx format')
     parser.add_argument('wavfile')
     parser.add_argument('syxfile')
@@ -26,3 +25,7 @@ if __name__ == '__main__':
         # Rewind bin file so the next function will read from the start again
         bin_file.seek(0)
         remap_tape_data_to_syx(tapefile=bin_file, syxfile= args.syxfile, verbose=args.verbose, store=args.store)
+
+
+if __name__ == '__main__':
+    wav2syx()

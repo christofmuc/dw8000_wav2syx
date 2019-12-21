@@ -10,7 +10,7 @@ import struct
 import numpy
 import scipy.io.wavfile as wf
 from scipy.signal import butter, lfilter
-from dw8000_reverse_engineer import read_acoustic_bytes
+from dw8000_wav2syx.dw8000_reverse_engineer import read_acoustic_bytes
 
 middle_length = 21
 too_long = 100
@@ -231,9 +231,7 @@ def transform_wav_to_bytes(wave_file_name, output_file, verbose=False):
         print_histogram(histogram)
 
 
-# If this is the main program, we only do a WAV to binary conversion, we do not create a syx file but rather stop
-# at the phase where we get the binary data, so we can see what is on the tape
-if __name__ == "__main__":
+def wav2bin():
     parser = argparse.ArgumentParser(description='Convert a Korg DW8000 wave file to its binary representation in '
                                                  '.bin format')
     parser.add_argument('wavefile')
@@ -244,3 +242,9 @@ if __name__ == "__main__":
 
     with open(args.binfile, "w+b") as bin_file:
         transform_wav_to_bytes(args.wavefile, bin_file, verbose=args.verbose)
+
+
+# If this is the main program, we only do a WAV to binary conversion, we do not create a syx file but rather stop
+# at the phase where we get the binary data, so we can see what is on the tape
+if __name__ == "__main__":
+    wav2bin()
