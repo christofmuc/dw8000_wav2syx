@@ -1,6 +1,6 @@
 # Introduction
 
-This is a little command line tool that allows you to convert files stored in the Korg DW8000 specific WAV format into much easier to handle MIDI Sysex SYX files. 
+This is a little command line tool that allows you to convert files stored in the [Korg DW-8000](https://en.wikipedia.org/wiki/Korg_DW-8000) specific WAV format into much easier to handle MIDI Sysex SYX files. 
 
 The Korg DW8000 synthesizer is from an area, when tape storage for computer data was still the cheapest and therefore most widespread option. Think Commodore C64 or Sinclair Spectrum, which stored programs and data on common audio tapes, in Sinclair's case even on standard audio hardware like a casette recorder that will already have been in the household back in 1982. 
 
@@ -10,7 +10,7 @@ It took a little reverse engineering exercise, because the tape format of the Ko
 
 # Download and Usage
 
-This tool is implemented in Python, so you will need a working python installation (version 3.6 and newer). If you have that, installation of the tool is as easy as 
+This tool is implemented in [Python](https://python.org), so you will need a working python installation (version 3.6 and newer). If you have that, installation of the tool is as easy as installing it from [pypi](https://pypi.org/project/dw8000-wav2syx-christofmuc/)
 
     pip install dw8000_wav2syx
 
