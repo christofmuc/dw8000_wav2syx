@@ -21,10 +21,11 @@ def wav2syx():
     args = parser.parse_args()
 
     with tempfile.TemporaryFile() as bin_file:
-        transform_wav_to_bytes(args.wavfile, bin_file, verbose=args.verbose)
-        # Rewind bin file so the next function will read from the start again
-        bin_file.seek(0)
-        remap_tape_data_to_syx(tapefile=bin_file, syxfile= args.syxfile, verbose=args.verbose, store=args.store)
+        worked = transform_wav_to_bytes(args.wavfile, bin_file, verbose=args.verbose)
+        if worked:
+            # Rewind bin file so the next function will read from the start again
+            bin_file.seek(0)
+            remap_tape_data_to_syx(tapefile=bin_file, syxfile= args.syxfile, verbose=args.verbose, store=args.store)
 
 
 if __name__ == '__main__':

@@ -226,9 +226,11 @@ def transform_wav_to_bytes(wave_file_name, output_file, verbose=False):
     output_file.seek(0)
     if read_acoustic_bytes(output_file):
         print("Successfully verified file")
+        return True
     else:
         print("File could not be verified!")
         print_histogram(histogram)
+        return False
 
 
 def wav2bin():
