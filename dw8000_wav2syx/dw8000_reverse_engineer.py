@@ -5,7 +5,7 @@
 #
 
 from math import log2, floor
-
+import argparse
 import mido
 
 recalculate = False
@@ -24,6 +24,20 @@ def read_sysex(filename):
     for message in messages:
         if is_single_buffer_dump(message):
             original_data.append(message.data[4:])
+
+
+def print_input_data(bin_array):
+    for i in range(len(bin_array)):
+        print("%i:%s " % (i, '{:02x}'.format(bin_array[i])), end='')
+    print()
+
+
+def binstring_2(value):
+    return format(value, '#010b')
+
+
+def binstring(num, length=8):
+    return format(num, '#0{}b'.format(length + 2))
 
 
 # In a single bin file, we might have more than one instance of the patch data. This normally happens as
@@ -112,58 +126,59 @@ if recalculate:
     read_acoustic_bytes(r"dw8000-reverse\reverse.bin")
     find_secret_mapping()
 else:
-    secret_mapping += [{"audio": 18, "bits": 3, "sysex": 32, "shift": 0},
-                       {"leftshift": 3, "audio": 19, "bits": 2, "sysex": 32, "shift": 6},
-                       {"audio": 1, "bits": 2, "sysex": 0, "shift": 5},
-                       {"audio": 0, "bits": 4, "sysex": 1, "shift": 0},
-                       {"audio": 1, "bits": 5, "sysex": 2, "shift": 0},
-                       {"audio": 3, "bits": 2, "sysex": 3, "shift": 5},
-                       {"audio": 3, "bits": 1, "sysex": 4, "shift": 7},
-                       {"audio": 19, "bits": 5, "sysex": 5, "shift": 0},
-                       {"audio": 3, "bits": 5, "sysex": 6, "shift": 0},
-                       {"audio": 2, "bits": 2, "sysex": 7, "shift": 5},
-                       {"audio": 0, "bits": 4, "sysex": 8, "shift": 4},
-                       {"audio": 2, "bits": 5, "sysex": 9, "shift": 0},
-                       {"audio": 4, "bits": 3, "sysex": 10, "shift": 0},
-                       {"audio": 6, "bits": 3, "sysex": 11, "shift": 0},
-                       {"audio": 4, "bits": 5, "sysex": 12, "shift": 3},
-                       {"audio": 26, "bits": 2, "sysex": 13, "shift": 0},
-                       {"audio": 29, "bits": 6, "sysex": 14, "shift": 0},
-                       {"audio": 5, "bits": 6, "sysex": 15, "shift": 2},
-                       {"audio": 6, "bits": 5, "sysex": 16, "shift": 3},
-                       {"audio": 5, "bits": 2, "sysex": 17, "shift": 0},
-                       {"audio": 1, "bits": 1, "sysex": 18, "shift": 7},
-                       {"audio": 7, "bits": 5, "sysex": 19, "shift": 3},
-                       {"audio": 8, "bits": 5, "sysex": 20, "shift": 0},
-                       {"audio": 9, "bits": 5, "sysex": 21, "shift": 0},
-                       {"audio": 10, "bits": 5, "sysex": 22, "shift": 0},
-                       {"audio": 11, "bits": 5, "sysex": 23, "shift": 0},
-                       {"audio": 12, "bits": 5, "sysex": 24, "shift": 0},
-                       {"audio": 13, "bits": 5, "sysex": 25, "shift": 0},
-                       {"audio": 7, "bits": 3, "sysex": 26, "shift": 0},
-                       {"audio": 14, "bits": 5, "sysex": 27, "shift": 0},
-                       {"audio": 15, "bits": 5, "sysex": 28, "shift": 0},
-                       {"audio": 16, "bits": 5, "sysex": 29, "shift": 0},
-                       {"audio": 17, "bits": 5, "sysex": 30, "shift": 0},
-                       {"audio": 18, "bits": 5, "sysex": 31, "shift": 3},
-                       {"audio": 20, "bits": 3, "sysex": 33, "shift": 0},
-                       {"audio": 27, "bits": 2, "sysex": 34, "shift": 0},
-                       {"audio": 20, "bits": 5, "sysex": 35, "shift": 3},
-                       {"audio": 23, "bits": 5, "sysex": 36, "shift": 3},
-                       {"audio": 24, "bits": 5, "sysex": 37, "shift": 3},
-                       {"audio": 25, "bits": 5, "sysex": 38, "shift": 3},
-                       {"audio": 22, "bits": 4, "sysex": 39, "shift": 0},
-                       {"audio": 2, "bits": 1, "sysex": 40, "shift": 7},
-                       {"audio": 21, "bits": 3, "sysex": 41, "shift": 0},
-                       {"audio": 22, "bits": 4, "sysex": 42, "shift": 4},
-                       {"audio": 28, "bits": 4, "sysex": 43, "shift": 4},
-                       {"audio": 27, "bits": 5, "sysex": 44, "shift": 3},
-                       {"audio": 21, "bits": 5, "sysex": 45, "shift": 3},
-                       {"audio": 28, "bits": 4, "sysex": 46, "shift": 0},
-                       {"audio": 26, "bits": 5, "sysex": 47, "shift": 3},
-                       {"audio": 23, "bits": 2, "sysex": 48, "shift": 0},
-                       {"audio": 24, "bits": 2, "sysex": 49, "shift": 0},
-                       {"audio": 25, "bits": 2, "sysex": 50, "shift": 0}]
+    # Override the secret mapping with the result of the automatic mapping
+    secret_mapping = [{"leftshift": 2, "audio": 18, "bits": 3, "sysex": 32, "shift": 0},
+                      {"audio": 19, "bits": 2, "sysex": 32, "shift": 6},
+                      {"audio": 1, "bits": 2, "sysex": 0, "shift": 5},
+                      {"audio": 0, "bits": 4, "sysex": 1, "shift": 0},
+                      {"audio": 1, "bits": 5, "sysex": 2, "shift": 0},
+                      {"audio": 3, "bits": 2, "sysex": 3, "shift": 5},
+                      {"audio": 3, "bits": 1, "sysex": 4, "shift": 7},
+                      {"audio": 19, "bits": 5, "sysex": 5, "shift": 0},
+                      {"audio": 3, "bits": 5, "sysex": 6, "shift": 0},
+                      {"audio": 2, "bits": 2, "sysex": 7, "shift": 5},
+                      {"audio": 0, "bits": 4, "sysex": 8, "shift": 4},
+                      {"audio": 2, "bits": 5, "sysex": 9, "shift": 0},
+                      {"audio": 4, "bits": 3, "sysex": 10, "shift": 0},
+                      {"audio": 6, "bits": 3, "sysex": 11, "shift": 0},
+                      {"audio": 4, "bits": 5, "sysex": 12, "shift": 3},
+                      {"audio": 26, "bits": 2, "sysex": 13, "shift": 0},
+                      {"audio": 29, "bits": 6, "sysex": 14, "shift": 0},
+                      {"audio": 5, "bits": 6, "sysex": 15, "shift": 2},
+                      {"audio": 6, "bits": 5, "sysex": 16, "shift": 3},
+                      {"audio": 5, "bits": 2, "sysex": 17, "shift": 0},
+                      {"audio": 1, "bits": 1, "sysex": 18, "shift": 7},
+                      {"audio": 7, "bits": 5, "sysex": 19, "shift": 3},
+                      {"audio": 8, "bits": 5, "sysex": 20, "shift": 0},
+                      {"audio": 9, "bits": 5, "sysex": 21, "shift": 0},
+                      {"audio": 10, "bits": 5, "sysex": 22, "shift": 0},
+                      {"audio": 11, "bits": 5, "sysex": 23, "shift": 0},
+                      {"audio": 12, "bits": 5, "sysex": 24, "shift": 0},
+                      {"audio": 13, "bits": 5, "sysex": 25, "shift": 0},
+                      {"audio": 7, "bits": 3, "sysex": 26, "shift": 0},
+                      {"audio": 14, "bits": 5, "sysex": 27, "shift": 0},
+                      {"audio": 15, "bits": 5, "sysex": 28, "shift": 0},
+                      {"audio": 16, "bits": 5, "sysex": 29, "shift": 0},
+                      {"audio": 17, "bits": 5, "sysex": 30, "shift": 0},
+                      {"audio": 18, "bits": 5, "sysex": 31, "shift": 3},
+                      {"audio": 20, "bits": 3, "sysex": 33, "shift": 0},
+                      {"audio": 27, "bits": 2, "sysex": 34, "shift": 0},
+                      {"audio": 20, "bits": 5, "sysex": 35, "shift": 3},
+                      {"audio": 23, "bits": 5, "sysex": 36, "shift": 3},
+                      {"audio": 24, "bits": 5, "sysex": 37, "shift": 3},
+                      {"audio": 25, "bits": 5, "sysex": 38, "shift": 3},
+                      {"audio": 22, "bits": 4, "sysex": 39, "shift": 0},
+                      {"audio": 2, "bits": 1, "sysex": 40, "shift": 7},
+                      {"audio": 21, "bits": 3, "sysex": 41, "shift": 0},
+                      {"audio": 22, "bits": 4, "sysex": 42, "shift": 4},
+                      {"audio": 28, "bits": 4, "sysex": 43, "shift": 4},
+                      {"audio": 27, "bits": 5, "sysex": 44, "shift": 3},
+                      {"audio": 21, "bits": 5, "sysex": 45, "shift": 3},
+                      {"audio": 28, "bits": 4, "sysex": 46, "shift": 0},
+                      {"audio": 26, "bits": 5, "sysex": 47, "shift": 3},
+                      {"audio": 23, "bits": 2, "sysex": 48, "shift": 0},
+                      {"audio": 24, "bits": 2, "sysex": 49, "shift": 0},
+                      {"audio": 25, "bits": 2, "sysex": 50, "shift": 0}]
 
 
 # print("Mapping used", json.dumps(secret_mapping))
@@ -202,10 +217,12 @@ def remap_tape_data_to_syx(tapefile, syxfile, ground_truth=None, verbose=False, 
         # Validation step - if we know the expected outcome, check if our secret mapping worked!
         if ground_truth is not None:
             if not (new_data == list(original_data[index])):
-                print("Match error at index %d" % index)
-                print(acoustic_data[index])
-                print(list(original_data[index]))
-                print(new_data)
+                #print("Match error at index %d" % index)
+                #print_input_data(acoustic_data[index])
+                #print("Truth", list(original_data[index]))
+                #print("Found", new_data)
+                print("Mapping input 18 %s 19 %s wanted %s but got %s" % (binstring(tune_data[18]), binstring(tune_data[19]),
+                                                                         binstring(original_data[index][32]), binstring(new_data[32])))
 
         # Create a DW8000 Data Save sysex message according to its service manual (p. 3)
         data_dump = [0x42, 0x30, 0x03, 0x40]
@@ -229,6 +246,19 @@ def remap_tape_data_to_syx(tapefile, syxfile, ground_truth=None, verbose=False, 
     print(syxfile, "written")
 
 
-if __name__ == '__main__':
+def bin2syx_reverse():
+    parser = argparse.ArgumentParser(description='Calculate the mapping and verify the result')
+    parser.add_argument('binfile')
+    parser.add_argument('known_syxfile')
+    parser.add_argument('syxfile')
+    parser.add_argument('--verbose', type=bool, default=False)
+
+    args = parser.parse_args()
     # This is the data to reverse engineer the memory mapping
-    remap_tape_data_to_syx(r"dw8000-reverse\reveng.syx", r"dw8000-reverse\reverse.bin")
+    with open(args.binfile, "rb") as bin_file:
+        remap_tape_data_to_syx(tapefile=bin_file, ground_truth=args.known_syxfile, syxfile=args.syxfile,
+                               verbose=args.verbose)
+
+
+if __name__ == '__main__':
+    bin2syx_reverse()

@@ -95,3 +95,25 @@ Jetzt aber:
 bank_a.wav
 00 1F 1F CA 00 32 23 FC 04 0B 15 1F 12 08 00 1F 1F 1F F9 02 A4 06 B2 00 03 03 00 D0 98 35 0F
 00 00 1F 01 00 09 06 00 00 1F 00 05 00 00 35 0E 00 03 00 1F 00 07 17 18 18 0E 04 00 0B 1F 16 14 0C 01 00 13 00 00 00 02 00 06 08 0A 00 03 0A 00 03 03 00
+
+
+One bug more...
+in index 32 something is still wrong.
+
+Rules
+{"shift": 0, "sysex": 32, "audio": 18, "bits": 3},
+{"shift": 6, "sysex": 32, "audio": 19, "bits": 2, "leftshift": 3}
+
+Truth   Got   input18   input19  truthbin     gotbin     input18bin    input19bin
+10      18      0x62      0x80   0b00001010   00010010    1100010      10000000
+10      18      0x22      0x80
+10      18      0x02      0x80
+these can be healed with leftshift:2
+
+13      11      0xdb      0x40
+ 8       2      0x7a      0x00
+ 9      10      0x2a      0x40
+
+ new errors with leftshift:2
+ 13     7       0xdb      0x40   0b00001101  00000111    11011011   01000000
+  8     2                        0b00001000  00000010    01111010   00000000
