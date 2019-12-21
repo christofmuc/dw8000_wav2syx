@@ -12,15 +12,15 @@ It took a little reverse engineering exercise, because the tape format of the Ko
 
 This tool is implemented in [Python](https://python.org), so you will need a working python installation (version 3.6 and newer). If you have that, installation of the tool is as easy as installing it from [pypi](https://pypi.org/project/dw8000-wav2syx-christofmuc/)
 
-    pip install dw8000_wav2syx
+    pip install dw8000_wav2syx-christofmuc
 
 This will install three command line tools, of which you will probably wnat to use only one. To convert a WAV file into a SYX file that you can e.g. send to your Korg with Midi-OX, just type
 
-    dw8000_wav2syx --storage True "Volume 8.wav" Volume8.syx
+    dw8000_wav2syx --store True "Volume 8.wav" Volume8.syx
 
-to create the Volume8.syx file. The `--storage True` part instructs the converter to create sysex write requests between the patches, which turns the sysex file into a proper bank dump.
+to create the Volume8.syx file. The `--store True` part instructs the converter to create sysex write requests between the patches, which turns the sysex file into a proper bank dump. Without these, the file is a list of edit buffer dumps, and if you send the file to the synth, only the last patch sent will be in the edit buffer, all others will have been lost.
 
-***WARNING***: Sending the file created with --storage True to your DW8000 will overwrite all patches, make sure to backup first!
+***WARNING***: Sending the file created with --store True to your DW8000 will overwrite all patches, make sure to backup first!
 
 ## In case of problems
 
