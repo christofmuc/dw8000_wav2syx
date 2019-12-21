@@ -202,6 +202,10 @@ def remap_tape_data_to_syx(tapefile, syxfile, ground_truth=None, verbose=False, 
     new_sysex = []
     index = 0
     for tune_data in acoustic_data:
+        if len(tune_data) < 31:
+            # Not enough data to possibly represent a patch, probably just got part of the header/final section
+            continue
+
         # Create empty sysex patch, 51 bytes
         new_data = [0 for x in range(51)]
         for key in secret_mapping:
