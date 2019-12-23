@@ -10,9 +10,6 @@ import mido
 
 recalculate = False
 
-original_data = []
-acoustic_data = []
-
 
 def is_single_buffer_dump(syx):
     # Korg DW8000 edit buffer
@@ -20,10 +17,12 @@ def is_single_buffer_dump(syx):
 
 
 def read_sysex(filename):
+    original_data = []
     messages = mido.read_syx_file(filename)
     for message in messages:
         if is_single_buffer_dump(message):
             original_data.append(message.data[4:])
+    return original_data
 
 
 def print_input_data(bin_array):
@@ -44,6 +43,7 @@ def binstring(num, length=8):
 # users will want to write the same data multiple times in order to have a backup, given how unsafe tape storage was
 # This function only loads the first instance (?)
 def read_acoustic_bytes(bytefile):
+    acoustic_data = []
     header_found = False
     intro_done = False
     count = 0
@@ -79,16 +79,16 @@ def read_acoustic_bytes(bytefile):
             acoustic_data.append(patch)
             # print("Patch %d" % count, patch)
             count += 1
-    return count == 64 and success
+    return count == 64 and success, acoustic_data
 
 
 # Hand code the one special case for parameter #32, which is split into two bytes on tape
 # The rest can be detected automatically
-secret_mapping = [{"shift": 0, "sysex": 32, "audio": 18, "bits": 3},
-                  {"shift": 6, "sysex": 32, "audio": 19, "bits": 2, "leftshift": 3}]
+# secret_mapping = [{"shift": 0, "sysex": 32, "audio": 18, "bits": 3},
+#                  {"shift": 6, "sysex": 32, "audio": 19, "bits": 2, "leftshift": 3}]
 
 
-def find_secret_mapping():
+def find_secret_mapping(original_data, acoustic_data):
     # Now search the 51 parameters!
     for param in range(51):
         original = original_data[param]
@@ -122,9 +122,13 @@ def find_secret_mapping():
 
 
 if recalculate:
-    read_sysex(r"dw8000-reverse\reveng.syx")
-    read_acoustic_bytes(r"dw8000-reverse\reverse.bin")
-    find_secret_mapping()
+    sysex_data = read_sysex(r"dw8000-reverse\reveng.syx")
+    with open(r"dw8000-reverse\reverse.bin", "rb") as reverse_file:
+        read_correctly, tape_data = read_acoustic_bytes(reverse_file)
+        if not read_correctly:
+            print("Fatal - could not decode reverse engineering tape file")
+            exit(-1)
+        find_secret_mapping(original_data=sysex_data, acoustic_data=tape_data)
 else:
     # Override the secret mapping with the result of the automatic mapping
     secret_mapping = [{"leftshift": 2, "audio": 18, "bits": 3, "sysex": 32, "shift": 0},
@@ -189,25 +193,26 @@ def mask_for_bits(bits):
 
 
 def remap_tape_data_to_syx(tapefile, syxfile, ground_truth=None, verbose=False, store=False):
+    original_data = []
     if ground_truth is not None:
-        read_sysex(ground_truth)
+        original_data = read_sysex(ground_truth)
         if verbose:
             print("Original syswx: ", original_data)
 
-    read_acoustic_bytes(tapefile)
+    worked, acoustic_data = read_acoustic_bytes(tapefile)
+    if not worked:
+        print("Fatal error - could not verify acoustic data, tape transcoding didn't work")
+        return
     if verbose:
+        print("Found %d messages in file, expected 64" % len(acoustic_data))
         print("Original tape: ", acoustic_data)
 
     # Now use the mapping...
     new_sysex = []
     index = 0
     for tune_data in acoustic_data:
-        if len(tune_data) < 31:
-            # Not enough data to possibly represent a patch, probably just got part of the header/final section
-            continue
-
         # Create empty sysex patch, 51 bytes
-        new_data = [0 for x in range(51)]
+        new_data = [0 for _ in range(51)]
         for key in secret_mapping:
             if "leftshift" in key:
                 new_data[key["sysex"]] = new_data[key["sysex"]] | (
@@ -221,12 +226,14 @@ def remap_tape_data_to_syx(tapefile, syxfile, ground_truth=None, verbose=False, 
         # Validation step - if we know the expected outcome, check if our secret mapping worked!
         if ground_truth is not None:
             if not (new_data == list(original_data[index])):
-                #print("Match error at index %d" % index)
-                #print_input_data(acoustic_data[index])
-                #print("Truth", list(original_data[index]))
-                #print("Found", new_data)
-                print("Mapping input 18 %s 19 %s wanted %s but got %s" % (binstring(tune_data[18]), binstring(tune_data[19]),
-                                                                         binstring(original_data[index][32]), binstring(new_data[32])))
+                # print("Match error at index %d" % index)
+                # print_input_data(acoustic_data[index])
+                # print("Truth", list(original_data[index]))
+                # print("Found", new_data)
+                print("Mapping input 18 %s 19 %s wanted %s but got %s" % (binstring(tune_data[18]),
+                                                                          binstring(tune_data[19]),
+                                                                          binstring(original_data[index][32]),
+                                                                          binstring(new_data[32])))
 
         # Create a DW8000 Data Save sysex message according to its service manual (p. 3)
         data_dump = [0x42, 0x30, 0x03, 0x40]
