@@ -27,7 +27,7 @@ setuptools.setup(
         'console_scripts': [
             'dw8000_bin2syx= dw8000_wav2syx.dw8000_bin2syx:bin2syx',
             'dw8000_wav2bin= dw8000_wav2syx.dw8000_wav2bin:wav2bin',
-            'dw8000_wav2syx= dw8000_wav2syx.dw8000_wav2syx:wav2syx',
+            'dw8000_wav2syx= dw8000_wav2syx.dw8000_wav2syx:__main__',
         ]
     }
 )
