@@ -7,7 +7,7 @@
 import os
 
 from dw8000_wav2syx.dw8000_wav2bin import transform_wav_to_bytes
-from dw8000_wav2syx.dw8000_bin2syx import remap_tape_data_to_syx
+from dw8000_wav2syx.dw8000_reverse_engineer import remap_tape_data_to_syx
 
 for root, dirs, files in os.walk(r"test_data"):
     for file in files:
