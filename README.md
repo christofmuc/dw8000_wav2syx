@@ -28,6 +28,11 @@ Not all files I found in the Internet could be converted, some have a really bad
 
 I am interested in trying to load more complicated error cases, so feel free to contact me and provide me with the WAV files that don't load, maybe there is a chance to scratch the data from the WAV file anyway.
 
+There are two command line switches that you can use to experiement yourself:
+
+  1. If the file is not reported as "clipped", we use a low pass filter before determining the zero-crossings. Sometimes this low pass filter is doing too much, so you can turn it off by specifying `--lowpass False` on the command line.
+  2. Depending on the noise level, to get a clear zero crossing we assume the signal crosses zero and then raises to some value before it returns again to the other side. The so called hysteresis threshold can be set with the parameter `--threshold 0.05`, the default is 0.05 but feel free to play around, sometimes 0.1 or even 0.3 has worked better for some files.
+
 ## Other uses
 
 If you want to see what is actually stored on tape, you can run the same conversion process in two steps:
