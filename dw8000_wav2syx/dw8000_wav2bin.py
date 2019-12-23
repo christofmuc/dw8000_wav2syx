@@ -100,7 +100,7 @@ def schmitt_trigger(normaldata, high, low):
     return rect
 
 
-def transform_wav_to_bytes(wave_file_name, output_file, verbose=False):
+def transform_wav_to_bytes(wave_file_name, output_file, hysteresis_threshold=0.05, lowpass=True, verbose=False):
     fs, data = load_wav(wave_file_name, verbose)
 
     # If this is slower than 44kHz, double entries
@@ -119,8 +119,8 @@ def transform_wav_to_bytes(wave_file_name, output_file, verbose=False):
     normaldata = (data - average) / max_value
 
     # The settings for hysteresis in the Schmitt-Trigger
-    high = 0.05
-    low = -0.05
+    high = hysteresis_threshold
+    low = -hysteresis_threshold
     if data_is_clipped(normaldata):
         # Clipped data can be processed differently than non-clipped data, as it does not make sense to low pass
         # We treat this as a nearly rectangular signal
@@ -135,7 +135,9 @@ def transform_wav_to_bytes(wave_file_name, output_file, verbose=False):
             print("Filtered Min: ", numpy.min(filtered), ", and max ", numpy.max(filtered))
         # max_value = max(abs(numpy.min(filtered)), abs(numpy.max(filtered)))
         # filtered = filtered / max_value
-        normaldata = filtered
+        if lowpass:
+            # Use the lowpass filtered data instead of the simple normalized data
+            normaldata = filtered
 
     if verbose:
         print(normaldata[172000:204000])
@@ -241,12 +243,15 @@ def wav2bin():
                                                  '.bin format')
     parser.add_argument('wavefile')
     parser.add_argument('binfile')
+    parser.add_argument('--lowpass', type=bool, default=True)
+    parser.add_argument('--threshold', type=float, default=0.05)
     parser.add_argument('--verbose', type=bool, default=False)
 
     args = parser.parse_args()
 
     with open(args.binfile, "w+b") as bin_file:
-        transform_wav_to_bytes(args.wavefile, bin_file, verbose=args.verbose)
+        transform_wav_to_bytes(args.wavefile, bin_file, hysteresis_threshold=args.threshold,
+                                                        lowpass=args.lowpass, verbose=args.verbose)
 
 
 # If this is the main program, we only do a WAV to binary conversion, we do not create a syx file but rather stop

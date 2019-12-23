@@ -16,12 +16,15 @@ def wav2syx():
     parser.add_argument('wavfile')
     parser.add_argument('syxfile')
     parser.add_argument('--verbose', type=bool, default=False)
+    parser.add_argument('--lowpass', type=bool, default=True)
+    parser.add_argument('--threshold', type=float, default=0.05)
     parser.add_argument('--store', type=bool, default=False)
 
     args = parser.parse_args()
 
     with tempfile.TemporaryFile() as bin_file:
-        worked = dw8000_wav2bin.transform_wav_to_bytes(args.wavfile, bin_file, verbose=args.verbose)
+        worked = dw8000_wav2bin.transform_wav_to_bytes(args.wavfile, bin_file, hysteresis_threshold=args.threshold,
+                                                       lowpass=args.lowpass, verbose=args.verbose)
         if worked:
             # Rewind bin file so the next function will read from the start again
             bin_file.seek(0)
