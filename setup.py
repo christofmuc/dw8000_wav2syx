@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="dw8000_wav2syx-christofmuc",  # Replace with your own username
-    version="1.0.4",
+    version="1.0.5",
     author="Christof",
     author_email="christof.ruch@gmail.com",
     description="Convert data for the Korg DW8000 stored as tape wav files into MIDI sysex format.",

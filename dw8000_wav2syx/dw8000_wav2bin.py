@@ -10,7 +10,7 @@ import struct
 import numpy
 import scipy.io.wavfile as wf
 from scipy.signal import butter, lfilter
-from dw8000_wav2syx.dw8000_reverse_engineer import read_acoustic_bytes
+from dw8000_wav2syx import dw8000_reverse_engineer
 
 middle_length = 21
 too_long = 100
@@ -42,23 +42,29 @@ def data_is_clipped(data):
     return False
 
 
-def load_wav(wave_file_name):
+def load_wav(wave_file_name, verbose = False):
     print("Reading file", wave_file_name)
 
     try:
         fs, all_channels = wf.read(wave_file_name)
-
+        print("Successfully read file using scipy.io.wavfile, samplerate is %d" % (fs))
         # If this is a multi-channel (Stereo) file, use only the first channel
         if (len(all_channels.shape)) > 1:
             data = all_channels[:, 0]
+            if verbose:
+                print("File is stereo, using only left (first) channel")
         else:
             data = all_channels
         return fs, data
     except ValueError:
+        print("Failed to read wavfile with scipy.io.wavfile, fallback to old wave library")
         # Not all files can be read by scipy, if the file is old and corrupt, try the standard wave lib
         with wave.open(wave_file_name) as wavefile:
             fs = wavefile.getparams().framerate
             all_bytes = wavefile.readframes(wavefile.getnframes())
+            if verbose:
+                print("Read %d samples at %d Hz sample rate and %d bytes per sample" %
+                      (wavefile.getnframes(), fs, wavefile.getparams().sampwidth))
             formatstring = ""
             if wavefile.getparams().sampwidth == 2:
                 formatstring = '%dh' % (len(all_bytes) / struct.calcsize('h'))
@@ -95,10 +101,7 @@ def schmitt_trigger(normaldata, high, low):
 
 
 def transform_wav_to_bytes(wave_file_name, output_file, verbose=False):
-    fs, data = load_wav(wave_file_name)
-
-    if verbose:
-        print("Sample rate %dHz" % fs)
+    fs, data = load_wav(wave_file_name, verbose)
 
     # If this is slower than 44kHz, double entries
     if fs < 44000:
@@ -224,7 +227,7 @@ def transform_wav_to_bytes(wave_file_name, output_file, verbose=False):
 
     # Rewind and reread file
     output_file.seek(0)
-    if read_acoustic_bytes(output_file):
+    if dw8000_reverse_engineer.read_acoustic_bytes(output_file):
         print("Successfully verified file")
         return True
     else:

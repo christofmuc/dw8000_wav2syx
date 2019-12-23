@@ -5,7 +5,7 @@
 #
 
 import argparse
-from dw8000_wav2syx.dw8000_reverse_engineer import remap_tape_data_to_syx
+from dw8000_wav2syx import dw8000_reverse_engineer
 
 
 def bin2syx():
@@ -17,7 +17,7 @@ def bin2syx():
 
     args = parser.parse_args()
 
-    remap_tape_data_to_syx(tapefile=args.binfile, syxfile=args.syxfile, verbose=args.verbose, store=args.store)
+    dw8000_reverse_engineer.remap_tape_data_to_syx(tapefile=args.binfile, syxfile=args.syxfile, verbose=args.verbose, store=args.store)
 
 
 if __name__ == '__main__':
