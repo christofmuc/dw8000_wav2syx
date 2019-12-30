@@ -14,7 +14,7 @@ This tool is implemented in [Python](https://python.org), so you will need a wor
 
     pip install dw8000_wav2syx-christofmuc
 
-This will install three command line tools, of which you will probably wnat to use only one. To convert a WAV file into a SYX file that you can e.g. send to your Korg with Midi-OX, just type
+This will install three command line tools, of which you will probably want to use only one. To convert a WAV file into a SYX file that you can e.g. send to your Korg with Midi-OX, just type
 
     dw8000_wav2syx --store True "Volume 8.wav" Volume8.syx
 
