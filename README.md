@@ -1,8 +1,8 @@
 # Introduction
 
-This is a little command line tool that allows you to convert files stored in the [Korg DW-8000](https://en.wikipedia.org/wiki/Korg_DW-8000) specific WAV format into much easier to handle MIDI Sysex SYX files. 
+This is a little command line tool that allows you to convert files stored in the [Korg DW-8000](https://en.wikipedia.org/wiki/Korg_DW-8000) specific WAV format into much easier to handle MIDI sysex SYX files. 
 
-The Korg DW8000 synthesizer is from an area, when tape storage for computer data was still the cheapest and therefore most widespread option. Think Commodore C64 or Sinclair Spectrum, which stored programs and data on common audio tapes, in Sinclair's case even on standard audio hardware like a casette recorder that will already have been in the household back in 1982. 
+The Korg DW8000 synthesizer is from an era when tape storage for computer data was still the cheapest and therefore most widespread option. Think Commodore C64 or Sinclair Spectrum, which stored programs and data on common audio tapes, in Sinclair's case even on standard audio hardware like a casette recorder that will already have been in the household back in 1982. 
 
 As the tape is really just a storage for audio data, nowadays this data is usually kept in WAV format, which is the digitized version of the data. But the Korg DW8000 also supports a full MIDI implmentation, and actually it is much nicer to work with MIDI and its digital serial data than with WAV files.
 
@@ -10,11 +10,11 @@ It took a little reverse engineering exercise, because the tape format of the Ko
 
 # Download and Usage
 
-This tool is implemented in [Python](https://python.org), so you will need a working python installation (version 3.6 and newer). If you have that, installation of the tool is as easy as installing it from [pypi](https://pypi.org/project/dw8000-wav2syx-christofmuc/)
+This tool is implemented in [Python](https://python.org), so you will need a working python installation (version 3.6 and newer). Python is available for Windows, Mac OS, and Linux, of course. If you have that, installation of the tool is as easy as installing it from [pypi](https://pypi.org/project/dw8000-wav2syx-christofmuc/)
 
     pip install dw8000_wav2syx-christofmuc
 
-This will install three command line tools, of which you will probably wnat to use only one. To convert a WAV file into a SYX file that you can e.g. send to your Korg with Midi-OX, just type
+This will install three command line tools, of which you will probably want to use only one. To convert a WAV file into a SYX file that you can e.g. send to your Korg with [MIDI-OX](http://www.midiox.com/), just type
 
     dw8000_wav2syx --store True "Volume 8.wav" Volume8.syx
 
@@ -24,13 +24,13 @@ to create the Volume8.syx file. The `--store True` part instructs the converter 
 
 ## In case of problems
 
-Not all files I found in the Internet could be converted, some have a really bad quality and might have also errors in the audio (some of these old tape drives were really no nicely adjusted) that make my simple problem fail. 
+Not all files I found in the Internet could be converted, some have a really bad quality and might have also errors in the audio (some of these old tape drives were really no nicely adjusted) that make my simple program fail. 
 
 I am interested in trying to load more complicated error cases, so feel free to contact me and provide me with the WAV files that don't load, maybe there is a chance to scratch the data from the WAV file anyway.
 
-There are two command line switches that you can use to experiement yourself:
+There are two command line switches that you can use to experiment yourself:
 
-  1. If the file is not reported as "clipped", we use a low pass filter before determining the zero-crossings. Sometimes this low pass filter is doing too much, so you can turn it off by specifying `--lowpass False` on the command line.
+  1. If the file is not reported as "clipped", I use a low pass filter before determining the zero-crossings. Sometimes this low pass filter is doing too much, so you can turn it off by specifying `--lowpass False` on the command line.
   2. Depending on the noise level, to get a clear zero crossing we assume the signal crosses zero and then raises to some value before it returns again to the other side. The so called hysteresis threshold can be set with the parameter `--threshold 0.05`, the default is 0.05 but feel free to play around, sometimes 0.1 or even 0.3 has worked better for some files.
 
 ## Other uses
@@ -41,7 +41,7 @@ If you want to see what is actually stored on tape, you can run the same convers
 
 will create a binary file that contains all the bytes as they are written on the tape. Use a hex editor to see what's in there. The second step just does
 
-    dw8000_bin2sys Volume8.bin Volume8.syx
+    dw8000_bin2syx Volume8.bin Volume8.syx
 
 converting the bin file to the sysex representation, effectively completing the transform.
 
@@ -51,9 +51,11 @@ There were many ways to store data on tape back in the 80s, luckily the DW8000 s
 
 Scratching the bits from the WAV file is really just measuring the length of the zero crossings of the signal, and classifying the length as either a long (0) or a short (1) rectangle. It won't look very rectangular if you look at the WAV file e.g. with Audacity, but that can be contributed to the low-pass filtering expected on an old audio tape, and should not endanger the conversion.
 
+![plot of audio data from the wav file](audio_graph.png)
+
 Once you have the bits, detecting the bytes is simple given they are stored with two start and one stop bit, converting the bitstream into a bytestream.
 
-The much harder problem was the reverse engineering of the memory layout, as the tape data is just a memory dump. I even disassembled the DW8000 firmware while trying to figure it out, but in the end generating test data was easier, treating the device as a black box which's behavior can be observed from the outside.
+The much harder problem was the reverse engineering of the memory layout, as the tape data is just a memory dump. I even disassembled the DW8000 firmware while trying to figure it out, but in the end generating test data by creating defined MIDI and looking at the resulting audio file was easier, treating the device as a black box which's behavior can be observed from the outside.
 
 
 ## Licensing
