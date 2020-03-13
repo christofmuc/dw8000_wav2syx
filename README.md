@@ -51,7 +51,7 @@ There were many ways to store data on tape back in the 80s, luckily the DW8000 s
 
 Scratching the bits from the WAV file is really just measuring the length of the zero crossings of the signal, and classifying the length as either a long (0) or a short (1) rectangle. It won't look very rectangular if you look at the WAV file e.g. with Audacity, but that can be contributed to the low-pass filtering expected on an old audio tape, and should not endanger the conversion.
 
-![plot of audio data from the wav file](audio_graph.png)
+![plot of audio data from the wav file](audio_graph.PNG)
 
 Once you have the bits, detecting the bytes is simple given they are stored with two start and one stop bit, converting the bitstream into a bytestream.
 
