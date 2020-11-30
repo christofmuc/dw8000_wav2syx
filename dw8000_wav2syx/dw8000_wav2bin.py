@@ -113,10 +113,12 @@ def transform_wav_to_bytes(wave_file_name, output_file, hysteresis_threshold=0.0
             fs *= 2
 
     max_value = max(abs(numpy.min(data)), abs(numpy.max(data)))
+
     average = numpy.average(data)  # Gleichstromanteil
+    running_mean = numpy.convolve(data, numpy.ones(4096)/4096, mode='same')
     if verbose:
         print("Min: ", numpy.min(data), ", and max ", numpy.max(data), "average is ", numpy.average(data))
-    normaldata = (data - average) / max_value
+    normaldata = (data - running_mean) / max_value
 
     # The settings for hysteresis in the Schmitt-Trigger
     high = hysteresis_threshold
